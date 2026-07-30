@@ -1,6 +1,7 @@
 # 📊 StoreMetrics
 
-A comprehensive performance tracking and evaluation dashboard built with ASP.NET Core and MongoDB. StoreMetrics provides management teams with a bird's-eye view of retail locations, allowing for quick assessments of store performance across multiple KPIs including customer engagement, accuracy, and facility conditions.
+The Store Evaluation System (SES) is a software solution designed to evaluate and monitor the performance of different stores efficiently. The system allows only the admin to log in, manage store information, record evaluation scores, and rate. By digitizing the evaluation process, the system ensures accurate performance tracking, faster data retrieval, and improved decision-making for store management and auditing. It eliminates the need for manual recording, minimizes errors, and provides a structured way to monitor store standards over time.
+
 
 ## ✨ Key Features
 
