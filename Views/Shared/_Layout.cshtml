@@ -1,0 +1,1246 @@
+﻿@using Microsoft.AspNetCore.Http
+@{
+    var uname = Context.Session.GetString("Username") ?? "AdminUser";
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+
+    string Active(string c, string a = "") =>
+        (controller == c && (string.IsNullOrEmpty(a) || action == a)) ? "is-active" : "";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - StoreMetrics</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    <!-- Modern Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        
+
+        /* FIX WHITE SPACE ON STORE PERFORMANCE PAGE */
+        .app-shell {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            height: 100vh; /* ⬅ FIXED (was min-height:100vh) */
+            overflow: hidden; /* prevents sidebar whitespace */
+        }
+
+
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow-y: auto; /* page scroll happens here */
+        }
+
+
+        .content-body {
+            flex: 1; /* This removes bottom white gap */
+        }
+
+        :root {
+            --font-main: 'Inter', 'Segoe UI', Roboto, sans-serif;
+            --color-bg: #f5f7fb;
+            --color-card: #ffffff;
+            --color-primary: #0a1f70;
+            --color-primary-light: #e0e7ff;
+            --color-primary-gradient: linear-gradient(90deg, #4f7cff, #0f2b8f);
+            --color-primary-gradient-hover: linear-gradient(90deg, #0f2b8f, #4f7cff);
+            --color-text: #111827;
+            --color-text-light: #6b7280;
+            --color-border: #e5e7eb;
+            --color-input-bg: #f8fafc;
+            --color-success: #065f46;
+            --color-success-bg: #ecfdf5;
+            --color-danger-txt: #dc2626;
+            --radius-md: 8px;
+            --radius-lg: 18px;
+            --shadow-md: 0 10px 30px rgba(15, 23, 42, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-main);
+            background: var(--color-bg);
+            color: var(--color-text);
+            font-size: 14px;
+        }
+
+        /* === 2. Main Layout Shell === */
+        .app-shell {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh;
+        }
+
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            background: var(--color-bg);
+        }
+
+        .content-body {
+            padding: 32px;
+        }
+
+        /* === 3. Sidebar (FIXED) === */
+        /*
+                 * By adding ".sidebar" to every class, these styles are
+                 * "specific" and can no longer be broken by other pages.
+                */
+        .sidebar {
+            background: linear-gradient(180deg, #0b1220 0%, #0a1f70 100%);
+            display: flex;
+            flex-direction: column;
+            padding: 22px 16px;
+            color: #e5e7eb;
+            box-shadow: 4px 0 16px rgba(0, 0, 0, 0.25);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+           
+            height: 100vh; 
+            overflow-y: auto; 
+            overflow-x: hidden; 
+        }
+
+
+            .sidebar .brand-area {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 30px;
+                padding: 12px 10px;
+                border-radius: 12px;
+                background: linear-gradient(90deg, #020617 0%, #0a1f70 100%);
+                box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+            }
+
+            .sidebar .brand-logo {
+                width: 48px;
+                height: 48px;
+                border-radius: 10px;
+                flex-shrink: 0;
+            }
+
+            .sidebar .brand-name {
+                font-weight: 800;
+                font-size: 20px;
+                color: #ffffff;
+                letter-spacing: 0.2px;
+            }
+
+                .sidebar .brand-name .accent {
+                    color: #60a5fa;
+                }
+
+            .sidebar .profile-block {
+                text-align: center;
+                margin-bottom: 24px;
+            }
+
+            .sidebar .profile-avatar {
+                width: 72px;
+                height: 72px;
+                background: #0e216b;
+                border-radius: 50%;
+                display: grid;
+                place-items: center;
+                margin: 0 auto 10px;
+                box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.12);
+            }
+
+            .sidebar .profile-icon {
+                width: 36px;
+                height: 36px;
+                stroke: #cbd5e1;
+            }
+
+            .sidebar .profile-name {
+                font-weight: 700;
+                color: #fff;
+                font-size: 15px;
+            }
+            /* Fixed color */
+            .sidebar .profile-role {
+                font-size: 12px;
+                color: #cbd5e1;
+            }
+
+            .sidebar .side-nav {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                margin-top: 10px;
+            }
+
+            .sidebar .side-link {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: #e2e8f0;
+                text-decoration: none;
+                padding: 10px 12px;
+                border-radius: 8px;
+                font-weight: 500;
+                font-size: 14px; /* Fixed size */
+                transition: all .2s ease;
+            }
+
+                .sidebar .side-link svg {
+                    width: 18px;
+                    height: 18px;
+                    stroke: #cbd5e1;
+                }
+
+                .sidebar .side-link:hover {
+                    background: rgba(255, 255, 255, 0.15);
+                    color: #fff;
+                }
+
+                .sidebar .side-link.is-active {
+                    background: #ffffff;
+                    color: var(--color-primary);
+                    font-weight: 700;
+                    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.25);
+                }
+
+            .sidebar .logout-wrap {
+                margin-top: auto;
+            }
+            /* Fixed logout button */
+            .sidebar .logout-btn {
+                width: 100%;
+                border: none;
+                background: rgba(255, 255, 255, 0.15);
+                color: #fff;
+                padding: 10px 0;
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                transition: all .2s ease;
+                font-size: 14px; /* Fixed size */
+                font-family: 'Segoe UI', Roboto, sans-serif; /* Fixed font */
+            }
+
+                .sidebar .logout-btn:hover {
+                    background: rgba(255, 255, 255, 0.25);
+                }
+
+
+        /* === 4. Header & Dropdown === */
+        .content-header {
+            background: linear-gradient(90deg, #020617 0%, #071a5b 100%);
+            padding: 10px 26px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #0b1c56;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+            height: 58px;
+        }
+
+            .content-header .left-section {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+        .header-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+        }
+
+        .header-title {
+            font-weight: 800;
+            font-size: 18px;
+            color: #ffffff;
+            letter-spacing: .2px;
+        }
+
+        .profile-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-drop-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #93c5fd;
+            font-size: 14px;
+        }
+
+            .profile-drop-btn:hover {
+                color: #fff;
+            }
+
+        .profile-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: #ffffff;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 8px;
+            z-index: 100;
+        }
+
+            .profile-dropdown-content a {
+                color: #1f2937;
+                padding: 10px 14px;
+                text-decoration: none;
+                display: block;
+                border-radius: 6px;
+                font-size: 14px;
+            }
+
+                .profile-dropdown-content a:hover {
+                    background-color: #f3f4f6;
+                    color: #0a1f70;
+                }
+
+        .profile-dropdown:hover .profile-dropdown-content {
+            display: block;
+        }
+
+        .profile-dropdown:hover .profile-drop-btn {
+            color: #fff;
+        }
+
+        /* === 5. GLOBAL CONTENT STYLES (MOVED FROM OTHER PAGES) === */
+
+        /* Card (From Add Store & Profile) */
+        .store-form-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 16px;
+        }
+
+        .store-form-card {
+            background: var(--color-card);
+            border-radius: var(--radius-lg);
+            padding: 0;
+            width: 100%;
+            max-width: 560px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .form-title {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--color-text);
+            margin: 0;
+            letter-spacing: 0.3px;
+            position: relative;
+            padding: 36px 40px 0;
+            margin-bottom: 24px;
+        }
+
+            .form-title::after {
+                content: "";
+                display: block;
+                width: 60px;
+                height: 3px;
+                background: var(--color-primary-gradient);
+                margin: 10px auto 0;
+                border-radius: 2px;
+            }
+
+        .success-alert {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+            text-align: center;
+            padding: 10px 0;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            margin: 0 40px 16px;
+            font-size: 14px;
+        }
+
+        /* Form (From Add Store & Edit Profile) */
+        .store-form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding: 0 40px 36px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--color-text);
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .input {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 10px 12px;
+            background: var(--color-input-bg);
+            font-size: 14px;
+            font-family: var(--font-main);
+            transition: all 0.2s ease;
+        }
+
+            .input:focus {
+                border-color: #4f7cff;
+                background: #fff;
+                box-shadow: 0 0 0 2px rgba(79, 124, 255, 0.2);
+                outline: none;
+            }
+
+        .text-danger {
+            color: var(--color-danger-txt);
+            font-size: 12px;
+            margin-top: 2px;
+            display: block;
+        }
+
+        .text-danger-summary {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+            .text-danger-summary ul {
+                margin: 0;
+                padding-left: 20px;
+            }
+
+        /* Buttons (From Add Store & Edit Profile) */
+        .btn-submit {
+            margin-top: 10px;
+            width: 100%;
+            background: var(--color-primary-gradient);
+            color: #fff;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.15);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+            .btn-submit:hover {
+                background: var(--color-primary-gradient-hover);
+                transform: translateY(-1px);
+            }
+
+            .btn-submit svg {
+                width: 18px;
+                height: 18px;
+            }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .btn-cancel {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            width: 100%;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+            .btn-cancel:hover {
+                background: #cbd5e1;
+                color: #1e293b;
+                transform: translateY(-1px);
+            }
+
+        /* Profile Page (From Profile/Index.cshtml) */
+        .card-profile-header {
+            background: #f9fafb;
+            padding: 32px 24px;
+            text-align: center;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .card-profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--color-primary-gradient);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 4px solid #ffffff;
+        }
+
+            .card-profile-avatar svg {
+                width: 48px;
+                height: 48px;
+            }
+
+        .card-profile-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-text);
+            margin: 0;
+        }
+
+        .card-profile-username {
+            font-size: 16px;
+            color: var(--color-text-light);
+            margin-top: 4px;
+        }
+
+        .card-profile-details {
+            padding: 24px 32px;
+        }
+
+        .details-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .detail-icon {
+            width: 24px;
+            height: 24px;
+            color: #4f7cff;
+            flex-shrink: 0;
+        }
+
+        .detail-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 13px;
+            color: var(--color-text-light);
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            color: var(--color-text);
+            font-weight: 600;
+        }
+
+        .card-profile-actions {
+            background: #f9fafb;
+            padding: 24px 32px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        /* Profile Edit Page (From Profile/Edit.cshtml) */
+        .card-form-group-icon {
+            position: relative;
+        }
+
+        .card-form-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: #9ca3af;
+            z-index: 10;
+        }
+
+        .card-form-group-icon .input {
+            padding-left: 44px;
+        }
+
+            .card-form-group-icon .input:focus + .card-form-icon,
+            .card-form-group-icon:focus-within .card-form-icon {
+                color: #4f7cff;
+            }
+
+        /* Modal (From Profile/Index.cshtml) */
+        .profile-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .profile-modal-content {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .profile-modal-overlay.show {
+            opacity: 1;
+        }
+
+            .profile-modal-overlay.show .profile-modal-content {
+                transform: scale(1);
+            }
+
+        .profile-modal-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 16px;
+            color: #10B981;
+        }
+
+            .profile-modal-icon svg {
+                width: 100%;
+                height: 100%;
+            }
+
+        .profile-modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--color-text);
+            margin: 0 0 8px;
+        }
+
+        .profile-modal-message {
+            font-size: 15px;
+            color: var(--color-text-light);
+            margin: 0 0 24px;
+        }
+
+        .profile-modal-content .btn-submit {
+            width: 100%;
+        }
+
+        /* Evaluation Page (From Evaluations/Create.cshtml) */
+        .eval-page-wrapper .card {
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            background: none !important;
+        }
+
+        .eval-page-wrapper .title {
+            text-align: left !important;
+        }
+
+        .eval-page-wrapper .badge {
+            display: none;
+        }
+
+        .eval-page-wrapper .actions {
+            margin: 0 !important;
+        }
+
+        .eval-page-wrapper .btn-primary {
+            display: none;
+        }
+
+        .eval-page-wrapper .input {
+            background: #fff !important;
+        }
+
+        .eval-page-wrapper label {
+            font-weight: 600 !important;
+        }
+
+        .eval-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .eval-main {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 0;
+        }
+
+        .eval-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: sticky;
+            top: 24px;
+        }
+
+        .eval-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(15,45,145,.08);
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .eval-card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .eval-card-header h2 {
+                font-size: 20px;
+                font-weight: 700;
+                color: #111827;
+                margin: 0;
+            }
+
+            .eval-card-header p {
+                font-size: 14px;
+                color: #6b7280;
+                margin: 4px 0 0;
+            }
+
+        .eval-step-badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background-color: #eef2ff;
+            color: #4338ca;
+            flex-shrink: 0;
+        }
+
+        #select-store-card {
+            border-color: #4f7cff;
+            animation: pulse-blue 2s infinite;
+        }
+
+            #select-store-card .eval-step-badge {
+                background-color: #4f7cff;
+                color: #ffffff;
+            }
+
+        @@keyframes pulse-blue {
+            0% {
+                box-shadow: 0 0 0 0 rgba(79, 124, 255, 0.4), 0 8px 24px rgba(15,45,145,.08);
+            }
+
+            70% {
+                box-shadow: 0 0 0 6px rgba(79, 124, 255, 0), 0 8px 24px rgba(15,45,145,.08);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(79, 124, 255, 0), 0 8px 24px rgba(15,45,145,.08);
+            }
+        }
+
+        .eval-card-body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .eval-form-group label {
+            display: block;
+            font-weight: 600;
+            color: #111827;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .eval-success-alert {
+            background: #ecfdf5;
+            color: #065f46;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            border: 1px solid #a7f3d0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .eval-success-alert svg {
+                width: 20px;
+                height: 20px;
+                flex-shrink: 0;
+            }
+
+        .eval-legend {
+            font-size: 13px;
+            color: #475569;
+            text-align: center;
+        }
+
+        .eval-legend-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+            .eval-legend-grid div {
+                background: #f8fafc;
+                border-radius: 6px;
+                padding: 8px 4px;
+            }
+
+            .eval-legend-grid strong {
+                display: block;
+                font-size: 16px;
+                color: #1e3a8a;
+            }
+
+        .eval-criteria-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .eval-criteria-row {
+            display: grid;
+            grid-template-columns: 40px 1fr auto;
+            align-items: center;
+            gap: 16px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+            .eval-criteria-row:hover {
+                border-color: #4f7cff;
+                box-shadow: 0 0 0 3px #e0e7ff;
+                background: #ffffff;
+            }
+
+        .eval-criteria-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #eef2ff;
+            color: #4338ca;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .eval-criteria-icon svg {
+                width: 20px;
+                height: 20px;
+            }
+
+        .eval-criteria-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+            margin: 0 0 2px;
+        }
+
+        .eval-criteria-info p {
+            font-size: 13px;
+            color: #6b7280;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .eval-criteria-badge {
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+            .eval-criteria-badge.not-set {
+                background: #eef2ff;
+                color: #4338ca;
+            }
+
+            .eval-criteria-badge.is-set {
+                background: #10B981;
+                color: #ffffff;
+            }
+
+        .eval-progress-bar {
+            width: 100%;
+            background: #e5e7eb;
+            border-radius: 999px;
+            height: 12px;
+            overflow: hidden;
+        }
+
+        .eval-progress-bar-inner {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg,#4f7cff,#0f2b8f);
+            transition: width .4s ease;
+        }
+
+        .eval-progress-text {
+            text-align: center;
+            font-weight: 600;
+            color: #374151;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .eval-btn-submit {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            text-decoration: none;
+            width: 100%;
+            background: linear-gradient(90deg, #4f7cff, #0f2b8f);
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.15);
+            transition: all 0.3s ease;
+        }
+
+            .eval-btn-submit:hover {
+                background: linear-gradient(90deg, #0f2b8f, #4f7cff);
+                transform: translateY(-1px);
+            }
+
+        .eval-input {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 10px 12px;
+            background: #f8fafc;
+            font-size: 14px;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            transition: all 0.2s ease;
+        }
+
+            .eval-input:focus {
+                border-color: #4f7cff;
+                background: #fff;
+                box-shadow: 0 0 0 2px rgba(79, 124, 255, 0.2);
+                outline: none;
+            }
+
+        .eval-text-danger {
+            color: #dc2626;
+            font-size: 12px;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .eval-dialog {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 28px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+            .eval-dialog::backdrop {
+                background: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(4px);
+            }
+
+        .eval-dialog-title {
+            padding: 0;
+            margin-bottom: 8px;
+            text-align: left;
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .eval-dialog-text {
+            font-size: 14px;
+            color: #475569;
+            margin: 0 0 16px;
+            line-height: 1.6;
+        }
+
+        .eval-dialog .eval-input {
+            background: #f8fafc;
+        }
+
+        .eval-dialog-actions {
+            margin-top: 16px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* === 6. Responsive === */
+        @@media (max-width: 960px) {
+            .app-shell {
+                grid-template-columns: 86px 1fr;
+            }
+
+            .brand-name, .sidebar .profile-name, .sidebar .profile-role {
+                display: none;
+            }
+
+            .sidebar .side-link {
+                justify-content: center;
+            }
+
+                .sidebar .side-link span {
+                    display: none;
+                }
+
+            .sidebar .logout-btn span {
+                display: none;
+            }
+
+            .content-header {
+                padding: 10px 16px;
+                height: 52px;
+            }
+
+            .content-body {
+                padding: 16px;
+            }
+
+            .store-form-wrapper {
+                padding: 0;
+            }
+
+            .store-form-card {
+                padding: 0;
+                max-width: 100%;
+                margin: 0;
+            }
+
+            .form-title {
+                padding: 24px 24px 0;
+            }
+
+            .store-form {
+                padding: 0 24px 24px;
+            }
+
+            .success-alert {
+                margin: 24px;
+            }
+
+            .card-profile-details {
+                padding: 24px;
+            }
+
+            .card-profile-actions {
+                padding: 24px;
+            }
+
+            .eval-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .eval-sidebar {
+                position: static;
+                top: auto;
+            }
+
+            .eval-card-header, .eval-card-body, .eval-card-footer {
+                padding: 16px;
+            }
+
+            .eval-criteria-row {
+                padding: 12px;
+                gap: 12px;
+            }
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand-area">
+                <img src="~/img/logo-login.png" alt="Logo" class="brand-logo" />
+                <div class="brand-name">Store<span class="accent">Metrics</span></div>
+            </div>
+
+            <div class="profile-block">
+                <div class="profile-avatar">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="profile-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6">
+                        <circle cx="12" cy="8" r="4" fill="none" />
+                        <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                    </svg>
+                </div>
+                <div class="profile-name">@uname</div>
+                <div class="profile-role">Admin</div>
+            </div>
+
+            <nav class="side-nav">
+                <a asp-controller="Stores" asp-action="Create" class="side-link @Active("Stores", "Create")">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    <span>Add Store</span>
+                </a>
+                <a asp-controller="Stores" asp-action="Index" class="side-link @Active("Stores", "Index")">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <rect x="3" y="4" width="18" height="16" rx="2" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    <span>Stores List</span>
+                </a>
+                <a asp-controller="Evaluations" asp-action="Create" class="side-link @Active("Evaluations", "Create")">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path d="M21 10H7M21 6H7m14 8H7m0 4h14M3 6v12" />
+                    </svg>
+                    <span>Evaluate Store</span>
+                </a>
+                <a asp-controller="Reports" asp-action="Overview" class="side-link @Active("Reports", "Overview")">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path d="M3 12h18M3 6h18M3 18h18" />
+                    </svg>
+                    <span>Report Overviews</span>
+                </a>
+                <a asp-controller="Reports" asp-action="StoreReports" class="side-link @Active("Reports", "StoreReports")">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <rect x="3" y="4" width="18" height="16" rx="2" />
+                        <path d="M7 10h10M7 14h6" />
+                    </svg>
+                    <span>Store Reports</span>
+                </a>
+                <a asp-controller="Reports" asp-action="StorePerformance" class="side-link @Active("Reports", "StorePerformance")">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path d="M3 3v18h18" />
+                        <path d="M7 14l3-3 4 4 5-5" />
+                    </svg>
+                    <span>Store Performance</span>
+                </a>
+
+
+            </nav>
+
+            @if (!string.IsNullOrWhiteSpace(uname))
+            {
+                <div class="logout-wrap">
+                    <form asp-controller="Auth" asp-action="Logout" method="post" asp-antiforgery="true">
+                        <button type="submit" class="logout-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" width="18" height="18">
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                                <polyline points="10 17 15 12 10 7" />
+                                <line x1="15" y1="12" x2="3" y2="12" />
+                            </svg>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
+            }
+        </aside>
+
+        <div class="content-area">
+            <header class="content-header">
+                <div class="left-section">
+                    <img src="~/img/logo-login.png" alt="Logo" class="header-logo" />
+                    <h1 class="header-title">@ViewData["Title"]</h1>
+                </div>
+                <div class="profile-dropdown">
+                    <button class="profile-drop-btn">
+                        <span><strong>@uname</strong></span>
+                        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="margin-top:2px;">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <div class="profile-dropdown-content">
+                        <a asp-controller="Profile" asp-action="Index">View Profile</a>
+                    </div>
+                </div>
+            </header>
+
+            <main class="content-body">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>

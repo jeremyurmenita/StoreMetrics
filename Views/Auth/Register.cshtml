@@ -1,0 +1,375 @@
+﻿@model StoreMetrics.ViewModels.RegisterVm
+@{
+    ViewData["Title"] = "Register";
+    Layout = "_LayoutAuth";
+}
+
+<div class="register-page-bg"></div>
+
+<div class="register-modal fade-in">
+
+    <!-- LEFT PANEL -->
+    <div class="register-left-panel">
+
+        <!-- Bubbles -->
+        <div class="bubble bubble-lg"></div>
+        <div class="bubble bubble-md"></div>
+        <div class="bubble bubble-sm"></div>
+
+        <div class="left-content">
+            <div class="brand-title">Store<span>Metrics</span></div>
+            <img src="~/img/logo-login.png" class="left-logo" />
+            <p class="left-text">Create your account here</p>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="register-right-panel">
+        <form asp-action="Register" method="post" class="register-form">
+
+            <h2 class="register-title">REGISTER AN ACCOUNT</h2>
+            <p class="register-sub">Please fill in your information to continue.</p>
+
+            <!-- FIELDS -->
+            <div class="input-group">
+                <input asp-for="FirstName" class="input" placeholder="First Name" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+
+            <div class="input-group">
+                <input asp-for="MiddleName" class="input" placeholder="Middle Name" />
+                <span asp-validation-for="MiddleName" class="text-danger"></span>
+            </div>
+
+            <div class="input-group">
+                <input asp-for="LastName" class="input" placeholder="Last Name" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+
+            <div class="input-group">
+                <input asp-for="Email" type="email" class="input" placeholder="Email Address" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="input-group">
+                <input asp-for="PhoneNumber" class="input" placeholder="Phone Number" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="input-group">
+                <input asp-for="Username" class="input" placeholder="Username" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="input-group password-wrapper">
+                <input asp-for="Password" id="PasswordInput" type="password" class="input" placeholder="Password" />
+
+                <div id="errorIcon" class="error-icon"
+                     data-error="Password must be at least 8 chars with upper/lowercase, number, and symbol.">
+                    ⚠
+                </div>
+
+                <svg id="togglePwd" class="eye-icon" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5
+                           c4.478 0 8.268 2.943 9.542 7
+                           -1.274 4.057-5.064 7-9.542 7
+                           -4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <!-- CONFIRM PASSWORD -->
+            <div class="input-group password-wrapper">
+                <input asp-for="ConfirmPassword" id="ConfirmPassword" type="password" class="input" placeholder="Confirm Password" />
+                <div id="passwordMatchMsg" class="match-msg"></div>
+
+                <svg id="toggleConfirm" class="eye-icon" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5
+                           c4.478 0 8.268 2.943 9.542 7
+                           -1.274 4.057-5.064 7-9.542 7
+                           -4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="register-btn">Register</button>
+
+            <p class="register-login-link">
+                <a asp-action="Login">Back to Login</a>
+            </p>
+
+        </form>
+    </div>
+
+</div>
+
+<!-- SUCCESS MODAL -->
+<div id="successModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-icon">✅</div>
+        <h3>Your account has been successfully created.</h3>
+        <button id="okButton">OK</button>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const pwd = document.getElementById("PasswordInput");
+            const confirm = document.getElementById("ConfirmPassword");
+            const matchMsg = document.getElementById("passwordMatchMsg");
+            const errorIcon = document.getElementById("errorIcon");
+
+            const togglePwd = document.getElementById("togglePwd");
+            const toggleConfirm = document.getElementById("toggleConfirm");
+
+            const modal = document.getElementById("successModal");
+            const okButton = document.getElementById("okButton");
+
+            function toggleEye(input) {
+                input.type = input.type === "password" ? "text" : "password";
+            }
+
+            togglePwd.onclick = () => toggleEye(pwd);
+            toggleConfirm.onclick = () => toggleEye(confirm);
+
+            // Password match
+            function checkMatch() {
+                if (confirm.value === "") {
+                    matchMsg.textContent = "";
+                } else if (confirm.value === pwd.value) {
+                    matchMsg.textContent = "✅ Passwords match";
+                    matchMsg.style.color = "#059669";
+                } else {
+                    matchMsg.textContent = "❌ Passwords do not match";
+                    matchMsg.style.color = "#dc2626";
+                }
+            }
+
+            pwd.addEventListener("input", checkMatch);
+            confirm.addEventListener("input", checkMatch);
+
+            // Success modal
+        @if (ViewBag.RegisterSuccess == true)
+        {
+            <text> modal.style.display = "flex"; </text>
+        }
+
+            okButton.onclick = () => {
+                modal.style.display = "none";
+                window.location.href = '/Auth/Login';
+            };
+        });
+    </script>
+
+    <style>
+        .register-page-bg {
+            position: fixed;
+            inset: 0;
+            background: #f3f4f6;
+            z-index: -1;
+        }
+
+        /* SMALLER POPUP */
+        .register-modal {
+            width: 800px; 
+            margin: 60px auto;
+            display: flex;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        /* LEFT PANEL */
+        .register-left-panel {
+            width: 50%;
+            background: linear-gradient(180deg,#516CFF 0%, #0E2A82 100%);
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        .left-content {
+            z-index: 2;
+        }
+
+        .brand-title {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+            .brand-title span {
+                color: #dbeafe;
+            }
+
+        .left-logo {
+            width: 160px; 
+            margin: 25px auto;
+        }
+
+
+        .left-text {
+            margin-top: 12px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+     
+
+
+        /* Bubbles */
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ffffff60, #a8b8ff25 65%, #7aa2ff20 100%);
+            filter: blur(1px);
+            backdrop-filter: blur(1px);
+        }
+
+        /* BIG TOP BUBBLE */
+        .bubble-lg {
+            width: 260px;
+            height: 260px;
+            top: -60px;
+            left: -70px;
+        }
+
+        /* MEDIUM BOTTOM RIGHT BUBBLE */
+        .bubble-md {
+            width: 180px;
+            height: 180px;
+            bottom: -50px;
+            right: -60px;
+        }
+
+        /* SMALL LOWER LEFT BUBBLE */
+        .bubble-sm {
+            width: 140px;
+            height: 140px;
+            bottom: 60px;
+            left: -50px;
+        }
+
+
+
+        /* RIGHT PANEL */
+        .register-right-panel {
+            width: 62%;
+            padding: 32px 40px;
+        }
+
+        .register-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1e3a8a;
+        }
+
+        .register-sub {
+            color: #6b7280;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            margin: 10px 0;
+        }
+
+        .input {
+            width: 100%;
+            height: 40px;
+            border: none;
+            background: #f3f4f6;
+            border-radius: 10px;
+            padding: 0 12px;
+            font-size: 14px;
+        }
+
+        .register-btn {
+            width: 100%;
+            margin-top: 12px;
+            padding: 10px 0;
+            background: linear-gradient(90deg,#4f6bff 0%, #062a86 100%);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .register-login-link {
+            text-align: center;
+            margin-top: 8px;
+        }
+
+            .register-login-link a {
+                color: #2563eb;
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+        .eye-icon {
+            position: absolute;
+            right: 40px;
+            top: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .error-icon {
+            position: absolute;
+            right: 12px;
+            top: 13px;
+            width: 18px;
+            height: 18px;
+            background: #dc2626;
+            color: #fff;
+            font-size: 11px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* SUCCESS MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 26px 34px;
+            border-radius: 14px;
+            width: 320px;
+            text-align: center;
+        }
+
+    </style>
+}

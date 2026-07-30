@@ -1,0 +1,139 @@
+﻿@model StoreMetrics.ViewModels.StoreVm
+@{
+    ViewData["Title"] = "Add Store";
+}
+
+<div class="store-form-wrapper">
+    <div class="store-form-card">
+        <h2 class="form-title">Add Store Information</h2>
+
+        @if (TempData["Ok"] as bool? == true)
+        {
+            <div class="success-alert">✓ Store Added Successfully!</div>
+        }
+
+        <form asp-action="Create" method="post" class="store-form">
+            <div class="form-group">
+                <label>Store Name</label>
+                <input asp-for="StoreName" class="input" placeholder="Enter store name" />
+                <span asp-validation-for="StoreName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Building Number</label>
+                <input asp-for="BuildingNumber" class="input" placeholder="e.g. #45 or Blk 3" />
+            </div>
+
+            <div class="form-group">
+                <label>Street Name</label>
+                <input asp-for="StreetName" class="input" placeholder="Street Name" />
+                <span asp-validation-for="StreetName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Province</label>
+                <select asp-for="Province" class="input" id="provinceSelect">
+                    <option value="Metro Manila">Metro Manila</option>
+                </select>
+                <span asp-validation-for="Province" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label>City</label>
+                <select asp-for="City" class="input" id="citySelect">
+                    <option value="">Select City</option>
+                </select>
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Barangay</label>
+                <select asp-for="Brgy" class="input" id="barangaySelect">
+                    <option value="">Select Barangay</option>
+                </select>
+                <span asp-validation-for="Brgy" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Postal Code</label>
+                <input asp-for="PostalCode" class="input" placeholder="4-digit code" />
+                <span asp-validation-for="PostalCode" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Audit Schedule</label>
+                <input asp-for="AuditDate" type="date" class="input" />
+                <span asp-validation-for="AuditDate" class="text-danger"></span>
+
+            </div>
+
+
+            <button class="btn-submit" type="submit">Add Store</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // --- City and Barangay Dataset ---
+        const data = {
+            "Metro Manila": {
+                "Quezon City": ["Bagong Pag-asa", "Commonwealth", "Kamuning", "Batasan Hills", "Kaligayahan", "Tatalon", "Bagbag", "Fairview"],
+                "Manila": ["Ermita", "Malate", "Paco", "Pandacan", "Sampaloc", "San Andres", "Santa Ana", "Tondo"],
+                "Makati": ["Bel-Air", "Poblacion", "San Antonio", "San Isidro", "Urdaneta", "San Lorenzo", "Bangkal", "Cembo"],
+                "Pasig": ["Bagong Ilog", "Ugong", "Santolan", "Kapitolyo", "Manggahan", "Pinagbuhatan", "San Miguel", "Ramon Magsaysay"],
+                "Caloocan": ["Bagong Silang", "Maypajo", "Grace Park East", "Grace Park West", "Kaunlaran Village", "Camarin", "Deparo", "Sta. Quiteria"],
+                "Taguig": ["Bagumbayan", "Bicutan", "Western Bicutan", "Maharlika Village", "Lower Bicutan", "Upper Bicutan", "Wawa", "Tuktukan"],
+                "Mandaluyong": ["Plainview", "Hulo", "Barangka Drive", "Barangka Ibaba", "Barangka Itaas", "Addition Hills", "Highway Hills", "Wack-Wack"],
+                "Pasay": ["San Rafael", "San Roque", "San Isidro", "San Jose", "Barangay 76", "Barangay 183", "Barangay 190", "Barangay 201"],
+                "Parañaque": ["Don Bosco", "San Antonio", "BF Homes", "San Dionisio", "San Martin de Porres", "Tambo", "Santo Niño", "Sun Valley"],
+                "Valenzuela": ["Balangkas", "Coloong", "Dalandanan", "Karuhatan", "Malinta", "Malanday", "Pariancillo Villa", "Ugong"],
+                "Las Piñas": ["Almanza Uno", "Almanza Dos", "Pamplona Uno", "Pamplona Tres", "Talon Uno", "Talon Dos", "Pulanglupa Uno", "Pulanglupa Dos"],
+                "Marikina": ["Barangka", "Calumpang", "Concepcion Uno", "Concepcion Dos", "Industrial Valley", "Malanday", "Nangka", "Parang"],
+                "Muntinlupa": ["Alabang", "Ayala Alabang", "Bayanan", "Cupang", "Poblacion", "Putatan", "Sucat", "Tunasan"],
+                "Navotas": ["Bagumbayan North", "Bagumbayan South", "Daanghari", "NBBS Dagat-Dagatan", "NBBS Kaunlaran", "North Bay Blvd. North", "San Jose", "Tangos North"],
+                "San Juan": ["Balong-Bato", "Batis", "Corazon de Jesus", "Greenhills", "Kabayanan", "Pasadena", "Progreso", "Rivera"],
+                "Malabon": ["Acacia", "Baritan", "Catmon", "Concepcion", "Dampalit", "Maysilo", "Santolan", "Tonsuya"],
+                "Pateros": ["Aguho", "Magtanggol", "Martires del 96", "Poblacion", "San Pedro", "San Roque", "Santa Ana", "Tabacalera"]
+            }
+        };
+
+        const provinceSelect = document.getElementById('provinceSelect');
+        const citySelect = document.getElementById('citySelect');
+        const barangaySelect = document.getElementById('barangaySelect');
+
+        function loadCities() {
+            citySelect.innerHTML = '<option value="">Select City</option>';
+            barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+            const province = provinceSelect.value;
+            if (!province || !data[province]) return;
+
+            Object.keys(data[province]).forEach(city => {
+                const opt = document.createElement('option');
+                opt.value = city;
+                opt.textContent = city;
+                citySelect.appendChild(opt);
+            });
+        }
+
+        function loadBarangays() {
+            barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+            const province = provinceSelect.value;
+            const city = citySelect.value;
+            if (!province || !city || !data[province][city]) return;
+
+            data[province][city].forEach(brgy => {
+                const opt = document.createElement('option');
+                opt.value = brgy;
+                opt.textContent = brgy;
+                barangaySelect.appendChild(opt);
+            });
+        }
+
+        provinceSelect.addEventListener('change', loadCities);
+        citySelect.addEventListener('change', loadBarangays);
+        loadCities();
+    </script>
+}

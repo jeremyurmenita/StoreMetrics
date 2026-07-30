@@ -1,0 +1,269 @@
+﻿@using System.Text.Json
+@model StoreMetrics.ViewModels.StoreReportVm
+
+@{
+    ViewData["Title"] = "Store Reports";
+
+    var labels = new[] {
+        "Cleanliness", "Condition", "Customer Engagement", "Personal Grooming",
+        "Accuracy", "Speed of Service", "Product Quality"
+    };
+
+    var values = new[] {
+        Model.Cleanliness, Model.Condition, Model.CustomerEngagement,
+        Model.PersonalGrooming, Model.Accuracy, Model.SpeedOfService, Model.ProductQuality
+    };
+
+    var jsonLabels = JsonSerializer.Serialize(labels);
+    var jsonValues = JsonSerializer.Serialize(values);
+
+    var serverPairs = labels.Zip(values, (l, v) => new { Label = l, Value = v }).Where(p => p.Value > 0.0).ToList();
+
+    // Improvement texts for each category
+    Func<string, string, string> getTip = (category, level) =>
+    {
+        return category switch
+        {
+            "Cleanliness" =>
+                level == "high" ? "Excellent cleanliness — maintain regular surface checks and floor care."
+              : level == "mid" ? "Good cleanliness — improve by tightening cleaning routines."
+              : "Needs improvement — please increase cleaning frequency and inspect key areas.",
+
+            "Condition" =>
+                level == "high" ? "Facilities in great shape — maintain equipment and fixtures."
+              : level == "mid" ? "Some wear noted — improve by repairing fixtures and repainting where needed."
+              : "Poor condition — please repair equipment and maintain structural upkeep.",
+
+            "Customer Engagement" =>
+                level == "high" ? "Great engagement — continue proactive greeting and closing interactions."
+              : level == "mid" ? "Good engagement — improve by offering more help proactively."
+              : "Needs improvement — please greet customers proactively and close interactions with thanks.",
+
+            "Personal Grooming" =>
+                level == "high" ? "Professional appearance — maintain uniform standards."
+              : level == "mid" ? "Grooming acceptable — improve by enforcing neat hair and visible name tags."
+              : "Needs improvement — please ensure uniform compliance and grooming standards.",
+
+            "Accuracy" =>
+                level == "high" ? "Excellent accuracy — continue verifying orders consistently."
+              : level == "mid" ? "Good accuracy — improve by double-checking key order elements."
+              : "Needs improvement — please verify items against receipts consistently.",
+
+            "Speed of Service" =>
+                level == "high" ? "Fast service — maintain smooth workflow and peak readiness."
+              : level == "mid" ? "Service is okay — improve by removing bottlenecks."
+              : "Needs improvement — please streamline steps and prep better for peak hours.",
+
+            "Product Quality" =>
+                level == "high" ? "Excellent quality — maintain freshness and presentation standards."
+              : level == "mid" ? "Good quality — improve by checking product presentation regularly."
+              : "Needs improvement — please monitor freshness, rotate stock, and follow standards.",
+
+            _ => "Review processes and apply focused improvements."
+        };
+    };
+
+    Func<double, string> getLevel = (score) =>
+    {
+        if (score >= 4.5) return "high";
+        if (score >= 3) return "mid";
+        return "low";
+    };
+}
+
+<div class="report-container">
+    <div class="card report-card">
+        <h2 class="title">Store Evaluation Report</h2>
+
+        <form method="get" asp-action="StoreReports" asp-controller="Reports"
+              class="filter-bar" style="display:flex;gap:10px;justify-content:center;margin-bottom:20px;">
+            <select id="storeId" name="storeId" class="input" asp-items="(SelectList)ViewBag.StoreOptions"
+                    style="max-width:260px;background:#eef1f6"></select>
+            <button class="btn btn-primary" type="submit"
+                    style="background:linear-gradient(90deg,#4f7cff,#0f2b8f);">
+                Apply
+            </button>
+        </form>
+
+        @if (!Model.HasData)
+        {
+            <div class="badge" style="background:#fff7ed;color:#9a3412;text-align:center;">
+                No evaluations yet for the selected store.
+            </div>
+        }
+        else
+        {
+            <div class="chart-section">
+                <h3>Rating Per Category (Selected Store)</h3>
+                <canvas id="barChart" height="120"></canvas>
+                <div id="barEmpty" class="empty-note" style="display:none;">No categories evaluated for this store yet.</div>
+            </div>
+
+            <div class="details-section">
+                <h3>Detailed Evaluation Breakdown of @Model.StoreName</h3>
+
+                @if (serverPairs.Count == 0)
+                {
+                    <div class="badge" style="background:#eff6ff;color:#1e40af;">No evaluated categories to list.</div>
+                }
+                else
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Total Average Rating</th>
+                                <th>Missing Portion (Improvements)</th>
+                                <th>Possible Improvements</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in serverPairs)
+                            {
+                                var missing = Math.Round(5 - p.Value, 2);
+                                var level = getLevel(p.Value);
+                                var tip = getTip(p.Label, level);
+                                <tr>
+                                    <td>@p.Label</td>
+                                    <td>@p.Value.ToString("0.##")</td>
+                                    <td>@missing.ToString("0.##")</td>
+                                    <td>@tip</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+
+                <div class="remarks">
+                    <p>This report summarizes store performance across key operational and customer experience metrics. Focus on the lower-rated areas to maximize overall satisfaction and efficiency.</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <script>
+        (function(){
+            var hasData = @JsonSerializer.Serialize(Model.HasData);
+            if(!hasData) return;
+
+            const labelsRaw = @Html.Raw(jsonLabels);
+            const valuesRaw = @Html.Raw(jsonValues);
+
+            const pairs = labelsRaw.map((l, i) => ({ label: l, value: Number(valuesRaw[i] || 0) }));
+            const filtered = pairs.filter(p => p.value > 0);
+
+            if (filtered.length === 0) {
+                document.getElementById('barEmpty').style.display = 'block';
+                return;
+            }
+
+            const labels = filtered.map(p => p.label);
+            const values = filtered.map(p => p.value);
+
+            const barBg = ['#60a5fa','#93c5fd','#fde68a','#99f6e4','#c4b5fd','#a5b4fc','#a78bfa'];
+            const barHover = ['#3b82f6','#60a5fa','#facc15','#5eead4','#a78bfa','#818cf8','#7c3aed'];
+
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Average Rating',
+                        data: values,
+                        backgroundColor: barBg.slice(0, values.length),
+                        hoverBackgroundColor: barHover.slice(0, values.length),
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, max: 5 }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        })();
+    </script>
+
+    <style>
+        body {
+            background: #f5f7fb;
+        }
+
+        .report-container {
+            max-width: 1080px;
+            margin: 24px auto;
+        }
+
+        .report-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 28px 24px;
+            box-shadow: 0 8px 24px rgba(15,45,145,.08);
+        }
+
+        .title {
+            text-align: center;
+            font-weight: 700;
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #0f172a;
+        }
+
+        .chart-section {
+            margin-top: 22px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+            .chart-section h3 {
+                font-size: 16px;
+                font-weight: 600;
+                margin-bottom: 12px;
+                color: #111827;
+            }
+
+        .details-section {
+            margin-top: 26px;
+        }
+
+            .details-section h3 {
+                font-size: 18px;
+                font-weight: 700;
+                color: #0f172a;
+                margin-bottom: 12px;
+            }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+            .table th, .table td {
+                padding: 10px 14px;
+                border: 1px solid #e5e7eb;
+            }
+
+        .remarks {
+            margin-top: 14px;
+            font-size: 14px;
+            color: #475569;
+        }
+    </style>
+}
+
+<div style="text-align:right; margin-top:20px;">
+    <a href="/Reports/DownloadStoreReport?storeId=@Model.StoreId"
+       class="btn btn-primary"
+       style="background:#0f2b8f; border:none; padding:10px 18px; border-radius:6px;">
+        ⬇ Download as PDF
+    </a>
+</div>

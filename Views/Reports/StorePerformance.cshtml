@@ -1,0 +1,308 @@
+﻿@using System.Text.Json
+@{
+    ViewData["Title"] = "Store Performance";
+
+    var perfCounts = ViewBag.PerformanceCounts ?? new Dictionary<string, int>
+    {
+        { "Excellent", 0 },
+        { "Good", 0 },
+        { "Average", 0 },
+        { "Poor", 0 },
+        { "Very Poor", 0 }
+    };
+
+    var labels = new[] { "Excellent", "Good", "Average", "Poor", "Very Poor" };
+    var values = labels.Select(l => perfCounts.ContainsKey(l) ? perfCounts[l] : 0).ToArray();
+
+    var jsonLabels = JsonSerializer.Serialize(labels);
+    var jsonValues = JsonSerializer.Serialize(values);
+}
+
+<div class="performance-container">
+
+    <h2 class="page-title">Store Performance Overview</h2>
+
+
+    <!-- KPI SUMMARY BOXES -->
+    <div class="stats-grid">
+        @foreach (var category in labels)
+        {
+            var count = perfCounts.ContainsKey(category) ? perfCounts[category] : 0;
+
+            <div class="clean-card perf-card" data-category="@category">
+                <div class="stat-label">@category</div>
+                <div class="stat-value">@count</div>
+                <div class="stat-subtext">Stores</div>
+
+                <div class="stat-badge @(category.ToLower().Replace(" ", "-"))">
+                    @count in overall reports
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- CHART SECTION -->
+    <h3 class="section-title">Distribution of Store Performance</h3>
+
+    <div class="charts-grid">
+        <div class="chart-card">
+            <div class="chart-wrapper">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-wrapper">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE SECTION (LOADS WHEN A CARD IS CLICKED) -->
+    <div id="performanceTableContainer" class="perf-table-container"></div>
+
+</div>
+
+@section Scripts {
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const labels = @Html.Raw(jsonLabels);
+        const values = @Html.Raw(jsonValues);
+
+        // PIE CHART
+        new Chart(document.getElementById("pieChart"), {
+            type: "pie",
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: ["#2ecc71", "#3498db", "#f1c40f", "#e67e22", "#e74c3c"]
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // BAR CHART
+        new Chart(document.getElementById("barChart"), {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Number of Stores",
+                    data: values,
+                    backgroundColor: ["#2ecc71", "#3498db", "#f1c40f", "#e67e22", "#e74c3c"]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // ============================
+        // CLICK CARDS → LOAD TABLE
+        // ============================
+        document.querySelectorAll('.perf-card').forEach(card => {
+            card.addEventListener('click', function () {
+                const category = this.getAttribute('data-category');
+
+                fetch(`/Reports/StoresByPerformance?category=${category}`)
+                    .then(res => res.text())
+                    .then(html => {
+                        const container = document.getElementById("performanceTableContainer");
+                        container.innerHTML = html;
+
+                        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    });
+            });
+        });
+    </script>
+
+    <style>
+
+        body, html {
+            overflow-x: hidden !important;
+        }
+
+        .performance-container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px 16px;
+            min-height: calc(100vh - 100px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        /* CLEAN CARD — restored original design */
+        .clean-card {
+            background: #fff;
+            padding: 18px;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            transition: .2s ease;
+            height: 130px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer; /* make clickable but keep design */
+        }
+
+            .clean-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+            }
+
+        /* STAT LABEL */
+        .stat-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .stat-subtext {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        /* BADGES — restored original design */
+        .stat-badge {
+            margin-top: 4px;
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            width: fit-content;
+        }
+
+            .stat-badge.excellent {
+                background: #ecfdf5;
+                color: #047857;
+            }
+
+            .stat-badge.good {
+                background: #eff6ff;
+                color: #1d4ed8;
+            }
+
+            .stat-badge.average {
+                background: #fef9c3;
+                color: #b45309;
+            }
+
+            .stat-badge.poor {
+                background: #fef2f2;
+                color: #b91c1c;
+            }
+
+            .stat-badge.very-poor {
+                background: #fee2e2;
+                color: #991b1b;
+            }
+
+
+        /* MAKE CARDS CLICKABLE */
+        .perf-card {
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+            .perf-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(0,0,0,.12);
+            }
+
+        .section-title {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            width: 100%;
+        }
+
+        .chart-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,.08);
+            overflow: hidden;
+        }
+
+        .chart-wrapper {
+            width: 100%;
+            height: 260px;
+        }
+
+        /* TABLE STYLES */
+        .perf-table-container {
+            margin-top: 35px;
+        }
+
+        .perf-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,.08);
+        }
+
+            .perf-table th {
+                background: #f1f5f9;
+                padding: 12px;
+                text-align: left;
+                font-weight: 700;
+            }
+
+            .perf-table td {
+                padding: 10px 12px;
+                border-top: 1px solid #e2e8f0;
+            }
+
+        .no-results-box {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        @@media (max-width: 900px) {
+            .charts-grid
+
+        {
+            grid-template-columns: 1fr;
+        }
+
+        }
+    </style>
+
+}

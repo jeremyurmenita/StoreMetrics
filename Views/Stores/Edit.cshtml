@@ -1,0 +1,158 @@
+﻿@model StoreMetrics.ViewModels.StoreVm
+@{
+    ViewData["Title"] = "Edit Store";
+}
+
+<div class="card" style="max-width:520px;margin:60px auto;padding:36px 40px;border-radius:16px;box-shadow:0 10px 28px rgba(15,23,42,.12);">
+    <h2 class="title" style="text-align:center;font-size:24px;font-weight:800;margin-bottom:24px;color:#0f172a;">
+        EDIT STORE INFORMATION
+    </h2>
+
+    <form asp-action="Edit" method="post" style="display:grid;gap:14px;">
+        <input type="hidden" asp-for="Id" />
+
+        <div>
+            <label>Store Name</label>
+            <input asp-for="StoreName" class="input" />
+            <span asp-validation-for="StoreName" class="text-danger"></span>
+        </div>
+
+        <div>
+            <label>Building Number (optional)</label>
+            <input asp-for="BuildingNumber" class="input" />
+        </div>
+
+        <div>
+            <label>Street Name</label>
+            <input asp-for="StreetName" class="input" />
+            <span asp-validation-for="StreetName" class="text-danger"></span>
+        </div>
+
+        <div>
+            <label>Province</label>
+            <select asp-for="Province" class="input" id="provinceSelect">
+                <option value="Metro Manila">Metro Manila</option>
+            </select>
+            <span asp-validation-for="Province" class="text-danger"></span>
+        </div>
+
+        <div>
+            <label>City</label>
+            <select asp-for="City" class="input" id="citySelect">
+                <option value="">Select City</option>
+            </select>
+            <span asp-validation-for="City" class="text-danger"></span>
+        </div>
+
+        <div>
+            <label>Barangay</label>
+            <select asp-for="Brgy" class="input" id="barangaySelect">
+                <option value="">Select Barangay</option>
+            </select>
+            <span asp-validation-for="Brgy" class="text-danger"></span>
+        </div>
+
+        <div>
+            <label>Postal Code</label>
+            <input asp-for="PostalCode" class="input" />
+            <span asp-validation-for="PostalCode" class="text-danger"></span>
+        </div>
+
+        <div>
+            <label>Audit Schedule</label>
+            <input asp-for="AuditDate"
+                   type="date"
+                   class="input"
+                   value="@(Model.AuditDate.HasValue ? Model.AuditDate.Value.ToString("yyyy-MM-dd") : "")" />
+            <span asp-validation-for="AuditDate" class="text-danger"></span>
+        </div>
+
+        <button class="btn btn-primary" type="submit"
+                style="width:100%;font-weight:700;background:linear-gradient(90deg,#4f7cff,#0f2b8f);padding:12px;border-radius:10px;box-shadow:0 6px 16px rgba(15,23,42,.15);">
+            Save Changes
+        </button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const data = {
+                "Metro Manila": {
+                    "Quezon City": ["Bagong Pag-asa", "Commonwealth", "Kamuning", "Batasan Hills", "Kaligayahan", "Tatalon", "Bagbag", "Fairview"],
+                    "Manila": ["Ermita", "Malate", "Paco", "Pandacan", "Sampaloc", "San Andres", "Santa Ana", "Tondo"],
+                    "Makati": ["Bel-Air", "Poblacion", "San Antonio", "San Isidro", "Urdaneta", "San Lorenzo", "Bangkal", "Cembo"],
+                    "Pasig": ["Bagong Ilog", "Ugong", "Santolan", "Kapitolyo", "Manggahan", "Pinagbuhatan", "San Miguel", "Ramon Magsaysay"],
+                    "Caloocan": ["Bagong Silang", "Maypajo", "Grace Park East", "Grace Park West", "Kaunlaran Village", "Camarin", "Deparo", "Sta. Quiteria"],
+                    "Taguig": ["Bagumbayan", "Bicutan", "Western Bicutan", "Maharlika Village", "Lower Bicutan", "Upper Bicutan", "Wawa", "Tuktukan"],
+                    "Mandaluyong": ["Plainview", "Hulo", "Barangka Drive", "Barangka Ibaba", "Barangka Itaas", "Addition Hills", "Highway Hills", "Wack-Wack"],
+                    "Pasay": ["San Rafael", "San Roque", "San Isidro", "San Jose", "Barangay 76", "Barangay 183", "Barangay 190", "Barangay 201"],
+                    "Parañaque": ["Don Bosco", "San Antonio", "BF Homes", "San Dionisio", "San Martin de Porres", "Tambo", "Santo Niño", "Sun Valley"],
+                    "Valenzuela": ["Balangkas", "Coloong", "Dalandanan", "Karuhatan", "Malinta", "Malanday", "Pariancillo Villa", "Ugong"],
+                    "Las Piñas": ["Almanza Uno", "Almanza Dos", "Pamplona Uno", "Pamplona Tres", "Talon Uno", "Talon Dos", "Pulanglupa Uno", "Pulanglupa Dos"],
+                    "Marikina": ["Barangka", "Calumpang", "Concepcion Uno", "Concepcion Dos", "Industrial Valley", "Malanday", "Nangka", "Parang"],
+                    "Muntinlupa": ["Alabang", "Ayala Alabang", "Bayanan", "Cupang", "Poblacion", "Putatan", "Sucat", "Tunasan"],
+                    "Navotas": ["Bagumbayan North", "Bagumbayan South", "Daanghari", "NBBS Dagat-Dagatan", "NBBS Kaunlaran", "North Bay Blvd. North", "San Jose", "Tangos North"],
+                    "San Juan": ["Balong-Bato", "Batis", "Corazon de Jesus", "Greenhills", "Kabayanan", "Pasadena", "Progreso", "Rivera"],
+                    "Malabon": ["Acacia", "Baritan", "Catmon", "Concepcion", "Dampalit", "Maysilo", "Santolan", "Tonsuya"],
+                    "Pateros": ["Aguho", "Magtanggol", "Martires del 96", "Poblacion", "San Pedro", "San Roque", "Santa Ana", "Tabacalera"]
+                }
+            };
+
+                    const currentProvince = "@Html.Raw(Model.Province ?? "")";
+            const currentCity = "@Html.Raw(Model.City ?? "")".trim();
+            const currentBrgy = "@Html.Raw(Model.Brgy ?? "")".trim();
+
+            const provinceSelect = document.getElementById('provinceSelect');
+            const citySelect = document.getElementById('citySelect');
+            const barangaySelect = document.getElementById('barangaySelect');
+
+            function loadCities() {
+                citySelect.innerHTML = '<option value="">Select City</option>';
+                barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+
+                const province = provinceSelect.value;
+                if (!province || !data[province]) return;
+
+                Object.keys(data[province]).forEach(city => {
+                    const opt = document.createElement('option');
+                    opt.value = city;
+                    opt.textContent = city;
+                    citySelect.appendChild(opt);
+                });
+            }
+
+            function loadBarangays() {
+                barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+
+                const province = provinceSelect.value;
+                const city = citySelect.value;
+                if (!province || !city || !data[province][city]) return;
+
+                data[province][city].forEach(brgy => {
+                    const opt = document.createElement('option');
+                    opt.value = brgy;
+                    opt.textContent = brgy;
+                    barangaySelect.appendChild(opt);
+                });
+            }
+
+            // ----- APPLY SELECTED VALUES -----
+            provinceSelect.value = currentProvince;
+
+            loadCities();
+            citySelect.value = currentCity;
+
+            loadBarangays();
+            barangaySelect.value = currentBrgy;
+
+            // Event listeners
+            provinceSelect.addEventListener('change', loadCities);
+            citySelect.addEventListener('change', loadBarangays);
+        });
+    </script>
+}
+

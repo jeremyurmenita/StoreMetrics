@@ -1,0 +1,96 @@
+﻿@model StoreMetrics.ViewModels.EvaluationVm
+@{
+    ViewData["Title"] = "Edit Evaluation";
+}
+
+<div class="card" style="max-width:860px;margin:auto;">
+    <h2 class="title" style="text-align:left">Edit Store Evaluation</h2>
+
+    @if (TempData["EvalSaved"] as bool? == true)
+    {
+        <div class="badge" style="background:#ecfdf5;color:#065f46;margin-bottom:12px;">✓ Saved.</div>
+    }
+
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <div style="display:grid;gap:14px;margin-bottom:16px;">
+            <label>Store</label>
+            <select asp-for="StoreId" asp-items="ViewBag.StoreOptions" class="input" style="background:#eef1f6" disabled></select>
+            <input type="hidden" asp-for="StoreId" />
+        </div>
+
+        <div style="background:#eef2ff;border:1px solid #e5e7eb;border-radius:12px;padding:12px;margin-bottom:16px;">
+            <strong style="display:block;margin-bottom:6px;color:#0f172a">Rating Criteria</strong>
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;text-align:center;color:#475569;font-size:13px;">
+                <div>1<br /><small>Lowest</small></div><div>2<br /><small>Poor</small></div>
+                <div>3<br /><small>Average</small></div><div>4<br /><small>Good</small></div>
+                <div>5<br /><small>Highest</small></div>
+            </div>
+        </div>
+
+        <div class="grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+            <div>
+                <label>Cleanliness</label>
+                <select class="input" asp-for="Cleanliness">@for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }</select>
+            </div>
+            <div>
+                <label>Condition</label>
+                <select class="input" asp-for="Condition">@for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }</select>
+            </div>
+            <div>
+                <label>Customer Engagement</label>
+                <select class="input" asp-for="CustomerEngagement">@for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }</select>
+            </div>
+            <div>
+                <label>Personal Grooming</label>
+                <select class="input" asp-for="PersonalGrooming">@for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }</select>
+            </div>
+            <div>
+                <label>Accuracy</label>
+                <select class="input" asp-for="Accuracy">@for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }</select>
+            </div>
+            <div>
+                <label>Speed of Service</label>
+                <select class="input" asp-for="SpeedOfService">@for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }</select>
+            </div>
+            <div>
+                <label>Product Quality</label>
+                <select class="input" asp-for="ProductQuality">@for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }</select>
+            </div>
+        </div>
+
+        <div style="margin-top:12px;">
+            <label>Remarks (Optional)</label>
+            <textarea asp-for="Remarks" class="input" rows="4"></textarea>
+        </div>
+
+        <div class="actions" style="margin-top:18px;">
+            <button class="btn btn-primary" type="submit" style="min-width:160px;background:linear-gradient(90deg,#4f7cff,#0f2b8f);">
+                Save
+            </button>
+            <a class="btn btn-outline" asp-controller="Reports" asp-action="Overview" asp-route-storeId="@Model.StoreId">Cancel</a>
+        </div>
+    </form>
+</div>

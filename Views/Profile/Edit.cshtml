@@ -1,0 +1,296 @@
+﻿@model StoreMetrics.ViewModels.EditProfileVm
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<!--
+This uses the same wrapper and card classes from your
+"Add Store" page to ensure the card size is consistent.
+-->
+<div class="store-form-wrapper">
+    <div class="store-form-card">
+
+        <!-- This uses the same title class -->
+        <h2 class="form-title">Edit Profile</h2>
+
+        <!--
+        This form tag is now correct and includes
+        the AntiForgeryToken to fix the error.
+        -->
+        <form asp-action="Edit" method="post" class="store-form">
+
+            <!--
+            CRITICAL FIX: These lines fix the "Authorization Error"
+            I have put them back from your original code.
+            -->
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+
+            <!-- This will show validation errors at the top -->
+            <div asp-validation-summary="ModelOnly" class="text-danger-summary"></div>
+
+            <!-- First Name -->
+            <div class="form-group">
+                <label>First Name</label>
+                <div class="card-form-group-icon">
+                    <svg class="card-form-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A1.875 1.875 0 0118 22.5H6a1.875 1.875 0 01-1.501-2.382z" />
+                    </svg>
+                    <input asp-for="FirstName" class="input" placeholder="Enter your first name" />
+                </div>
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+
+            <!-- Middle Name -->
+            <div class="form-group">
+                <label>Middle Name (optional)</label>
+                <div class="card-form-group-icon">
+                    <svg class="card-form-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A1.875 1.875 0 0118 22.5H6a1.875 1.875 0 01-1.501-2.382z" />
+                    </svg>
+                    <input asp-for="MiddleName" class="input" placeholder="Enter your middle name" />
+                </div>
+                <span asp-validation-for="MiddleName" class="text-danger"></span>
+            </div>
+
+            <!-- Last Name -->
+            <div class="form-group">
+                <label>Last Name</label>
+                <div class="card-form-group-icon">
+                    <svg class="card-form-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A1.875 1.875 0 0118 22.5H6a1.875 1.875 0 01-1.501-2.382z" />
+                    </svg>
+                    <input asp-for="LastName" class="input" placeholder="Enter your last name" />
+                </div>
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+
+            <!-- Email Address -->
+            <div class="form-group">
+                <label>Email Address</label>
+                <div class="card-form-group-icon">
+                    <svg class="card-form-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                    </svg>
+                    <input asp-for="Email" class="input" placeholder="Enter your email address" />
+                </div>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="form-group">
+                <label>Phone Number</label>
+                <div class="card-form-group-icon">
+                    <svg class="card-form-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                    </svg>
+                    <input asp-for="PhoneNumber" class="input" placeholder="Enter your phone number" />
+                </div>
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="actions-grid">
+                <a asp-action="Index" class="btn-cancel">Cancel</a>
+                <button class="btn-submit" type="submit">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!--
+This <style> block is safe to add.
+It *only* adds styles for NEW, UNIQUE classes
+and re-uses styles from your layout (like .input).
+It will NOT conflict with your sidebar.
+-->
+<style>
+    /*
+         * CARD & FORM STYLES
+         * These classes are from your "Add Store" page,
+         * so the card will be consistent.
+        */
+    .store-form-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 40px 16px;
+    }
+
+    .store-form-card {
+        background: #fff;
+        border-radius: 18px;
+        padding: 0; /* Remove padding */
+        width: 100%;
+        max-width: 560px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+        overflow: hidden;
+    }
+
+    .form-title {
+        text-align: center;
+        font-size: 26px;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0;
+        letter-spacing: 0.3px;
+        position: relative;
+        padding: 36px 40px 0; /* Add padding */
+        margin-bottom: 24px; /* Add margin */
+    }
+
+        .form-title::after {
+            content: "";
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #4f7cff, #0f2b8f);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+
+    .store-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px; /* Increased gap */
+        padding: 0 40px 36px; /* Add padding */
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
+
+    /*
+         * NEW ICON STYLES
+         * These are new classes with "card-" prefix to prevent conflicts.
+        */
+    .card-form-group-icon {
+        position: relative;
+    }
+
+    .card-form-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        color: #9ca3af; /* Light gray icon */
+        z-index: 10;
+    }
+
+    /* Adjust input padding to make space for the icon */
+    .card-form-group-icon .input {
+        padding-left: 44px; /* 14px left + 20px icon + 10px gap */
+    }
+
+    /*
+         * INPUT & VALIDATION STYLES
+         * (Re-using your existing styles)
+        */
+    .input {
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 12px 14px; /* Adjusted padding */
+        background: #f8fafc;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        position: relative;
+        z-index: 1;
+    }
+
+        .input:focus {
+            border-color: #4f7cff;
+            background: #fff;
+            box-shadow: 0 0 0 2px rgba(79, 124, 255, 0.2);
+            outline: none;
+            z-index: 2; /* Bring to front */
+        }
+
+    /* Make icon active on focus */
+    .card-form-group-icon .input:focus + .card-form-icon,
+    .card-form-group-icon:focus-within .card-form-icon {
+        color: #4f7cff;
+    }
+
+
+    .text-danger {
+        color: #dc2626;
+        font-size: 12px;
+        margin-top: 4px;
+        display: block;
+    }
+
+    .text-danger-summary {
+        background: #fee2e2;
+        color: #b91c1c;
+        padding: 10px 14px;
+        border-radius: 10px;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+        .text-danger-summary ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+
+    /*
+         * BUTTON STYLES
+         * (Using your .btn-submit class and adding .btn-cancel)
+        */
+    .actions-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 10px;
+    }
+
+    /* Base button style (for both) */
+    .btn-submit, .btn-cancel {
+        display: block;
+        text-align: center;
+        text-decoration: none;
+        width: 100%;
+        font-weight: 700;
+        font-size: 15px;
+        padding: 12px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    /* Save Button (Primary) */
+    .btn-submit {
+        background: linear-gradient(90deg, #4f7cff, #0f2b8f);
+        color: #fff;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.15);
+    }
+
+        .btn-submit:hover {
+            background: linear-gradient(90deg, #0f2b8f, #4f7cff);
+            transform: translateY(-1px);
+        }
+
+    /* New Cancel Button (Secondary) */
+    .btn-cancel {
+        background: #e2e8f0;
+        color: #334155;
+        border: 1px solid #cbd5e1;
+    }
+
+        .btn-cancel:hover {
+            background: #cbd5e1;
+            color: #1e293b;
+            transform: translateY(-1px);
+        }
+</style>

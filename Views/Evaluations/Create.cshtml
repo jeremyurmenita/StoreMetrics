@@ -1,0 +1,668 @@
+﻿@model StoreMetrics.ViewModels.EvaluationVm
+@{
+    ViewData["Title"] = "Evaluate Store";
+
+    var icons = new Dictionary<string, string>
+            {
+                ["Cleanliness"] = @"<path stroke-linecap='round' stroke-linejoin='round' d='M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.388m5.043.025a15.994 15.994 0 001.622-3.388m3.879 1.62a15.99 15.99 0 00-1.62-3.389m-5.043-.024a15.994 15.994 0 01-1.622-3.389m5.043.024a15.99 15.99 0 01-1.62 3.389M7.538 12.762a15.99 15.99 0 00-1.62 3.388m5.043-.024a15.994 15.994 0 011.622 3.388m-5.043-.024a15.99 15.99 0 011.62 3.388m1.62-3.388a15.99 15.99 0 001.62 3.388m-1.62-3.388a15.994 15.994 0 01-1.622 3.389' />",
+                ["Condition"] = @"<path stroke-linecap='round' stroke-linejoin='round' d='M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M8.25 6h7.5m-7.5 3h7.5m-7.5 3h7.5m-7.5 3h7.5M12 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21' />",
+                ["Customer Engagement"] = @"<path stroke-linecap='round' stroke-linejoin='round' d='M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-3.11 8.25-7 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.454-.067-.927-.445-1.214a6.523 6.523 0 01-.393-.362A8.93 8.93 0 012.25 12c0-4.556 3.11-8.25 7-8.25s7 3.694 7 8.25z' />",
+                ["Personal Grooming"] = @"<path stroke-linecap='round' stroke-linejoin='round' d='M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A1.875 1.875 0 0118 22.5H6a1.875 1.875 0 01-1.501-2.382z' />",
+                ["Accuracy"] = @"<path stroke-linecap='round' stroke-linejoin='round' d='M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z' />",
+                ["Speed of Service"] = @"<path stroke-linecap='round' stroke-linejoin='round' d='M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z' />",
+                ["Product Quality"] = @"<path stroke-linecap='round' stroke-linejoin='round' d='M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.31h5.513c.491 0 .702.657.337.986l-4.261 3.14a.563.563 0 00-.214.617l1.618 4.894a.562.562 0 01-.815.626l-4.202-3.098a.563.563 0 00-.638 0L8.602 19.88a.562.562 0 01-.815-.626l1.618-4.894a.563.563 0 00-.214-.617L5.05 9.907c-.365-.269-.154-.986.337-.986h5.513a.563.563 0 00.475-.31L11.48 3.5z' />"
+            };
+}
+
+<form asp-action="Create" method="post" id="evaluationForm" class="eval-page-wrapper">
+
+    <div class="eval-grid">
+        <div class="eval-main">
+
+            @if (TempData["EvalOk"] as bool? == true)
+            {
+                <div class="eval-success-alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Store successfully evaluated!</span>
+                </div>
+            }
+
+            <div class="eval-card">
+                <div class="eval-card-header">
+                    <div class="eval-header-content">
+                        <h2>Evaluation Criteria</h2>
+                        <p>Select each category to provide a rating from 1 to 5.</p>
+                    </div>
+                    <span class="eval-step-badge">Step 2</span>
+                </div>
+                <div class="eval-card-body" style="gap: 12px;">
+                    <div class="eval-criteria-list" id="criteriaList">
+                        @foreach (var item in new[]
+                        {
+                        ("Cleanliness", "Cleanliness", "The sales floor and service areas are free of wet and dry trash, and trash bins are clean and covered."),
+                        ("Condition", "Condition", "Equipment, furniture, and facilities are well-maintained and fully operational."),
+                        ("Customer Engagement", "CustomerEngagement", "Staff consistently greet and properly assist all customers."),
+                        ("Personal Grooming", "PersonalGrooming", "Employees are presentable and strictly adhere to established grooming standards."),
+                        ("Accuracy", "Accuracy", "Orders are handled and processed correctly, resulting in high order accuracy."),
+                        ("Speed of Service", "SpeedOfService", "The service is provided efficiently and completed within expected timeframes."),
+                        ("Product Quality", "ProductQuality", "The product consistently meets or exceeds all expected quality standards.")
+                        })
+                        {
+                            <div class="eval-criteria-row" data-key="@item.Item2" data-question="@item.Item3" role="button" tabindex="0">
+                                <div class="eval-criteria-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        @Html.Raw(icons[item.Item1])
+                                    </svg>
+                                </div>
+                                <div class="eval-criteria-info">
+                                    <h3>@item.Item1</h3>
+                                    <p>@item.Item3</p>
+                                </div>
+                                <span class="eval-criteria-badge not-set" data-for="@item.Item2">
+                                    Rate Now
+                                </span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="eval-card">
+                <div class="eval-card-header">
+                    <h2>Additional Remarks <small>(Optional)</small></h2>
+                </div>
+                <div class="eval-card-body">
+                    <textarea asp-for="Remarks" class="eval-input" rows="5"
+                              placeholder="Enter any additional observations, praises, or areas for improvement here..."></textarea>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="eval-sidebar">
+
+            <div class="eval-card" id="select-store-card">
+                <div class="eval-card-header">
+                    <div class="eval-header-content">
+                        <h2>Select Store</h2>
+                    </div>
+                    <span class="eval-step-badge">Step 1</span>
+                </div>
+                <div class="eval-card-body">
+                    <div class="eval-form-group">
+                        <label asp-for="StoreId">Store Name</label>
+                        <select asp-for="StoreId"
+                                asp-items="@(new SelectList(ViewBag.StoreOptions, "Value", "Text"))"
+                                class="eval-input" id="storeSelect">
+                            <option value="">Select a store...</option>
+                        </select>
+
+                        <span asp-validation-for="StoreId" class="eval-text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="eval-card">
+                <div class="eval-card-header">
+                    <h2>Rating Scale</h2>
+                </div>
+                <div class="eval-card-body">
+                    <div class="eval-legend">
+                        <div class="eval-legend-grid">
+                            <div><strong>1</strong><small>Strongly Disagree</small></div>
+                            <div><strong>2</strong><small>Disagree</small></div>
+                            <div><strong>3</strong><small>Neutral</small></div>
+                            <div><strong>4</strong><small>Agree</small></div>
+                            <div><strong>5</strong><small>Strongly Agree</small></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="eval-card">
+                <div class="eval-card-header">
+                    <h2>Progress</h2>
+                </div>
+                <div class="eval-card-body">
+                    <div class="eval-progress-bar">
+                        <div id="progressBar" class="eval-progress-bar-inner"></div>
+                    </div>
+                    <div id="progressTracker" class="eval-progress-text">
+                        0 of 7 criteria rated
+                    </div>
+                </div>
+            </div>
+
+            <button class="eval-btn-submit" type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:20px; height: 20px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Submit Evaluation</span>
+            </button>
+        </div>
+    </div>
+
+    <div style="display:none">
+        <select asp-for="Cleanliness"><option value="0">0</option>@for (int i = 1; i <= 5; i++)
+            {
+                <option>@i</option>
+            }</select>
+        <select asp-for="Condition"><option value="0">0</option>@for (int i = 1; i <= 5; i++)
+            {
+                <option>@i</option>
+            }</select>
+        <select asp-for="CustomerEngagement"><option value="0">0</option>@for (int i = 1; i <= 5; i++)
+            {
+                <option>@i</option>
+            }</select>
+        <select asp-for="PersonalGrooming"><option value="0">0</option>@for (int i = 1; i <= 5; i++)
+            {
+                <option>@i</option>
+            }</select>
+        <select asp-for="Accuracy"><option value="0">0</option>@for (int i = 1; i <= 5; i++)
+            {
+                <option>@i</option>
+            }</select>
+        <select asp-for="SpeedOfService"><option value="0">0</option>@for (int i = 1; i <= 5; i++)
+            {
+                <option>@i</option>
+            }</select>
+        <select asp-for="ProductQuality"><option value="0">0</option>@for (int i = 1; i <= 5; i++)
+            {
+                <option>@i</option>
+            }</select>
+    </div>
+</form>
+
+<dialog id="critDialog" class="eval-dialog">
+    <form method="dialog">
+        <h2 class="eval-dialog-title" id="critTitle"></h2>
+        <p class="eval-dialog-text" id="critQuestion"></p>
+        <div class="eval-form-group">
+            <label for="critSelect">Rating</label>
+            <select id="critSelect" class="eval-input">
+                <option value="">Select a response...</option>
+                <option value="1">1 - Strongly Disagree</option>
+                <option value="2">2 - Disagree</option>
+                <option value="3">3 - Neutral</option>
+                <option value="4">4 - Agree</option>
+                <option value="5">5 - Strongly Agree</option>
+            </select>
+        </div>
+        <div class="eval-dialog-actions">
+            <button class="eval-btn-submit" value="ok">Save Rating</button>
+        </div>
+    </form>
+</dialog>
+
+<dialog id="storeDialog" class="eval-dialog">
+    <form method="dialog" style="text-align: center;">
+        <h2 class="eval-dialog-title" style="font-size: 20px;">⚠ Please Select a Store</h2>
+        <p class="eval-dialog-text">You must select a store from the dropdown menu before you can begin rating.</p>
+        <div class="eval-dialog-actions">
+            <button class="eval-btn-submit" value="ok" style="width: 100px; margin: 0 auto;">OK</button>
+        </div>
+    </form>
+</dialog>
+
+<style>
+    .eval-page-wrapper .card {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: none !important;
+    }
+
+    .eval-page-wrapper .title {
+        text-align: left !important;
+    }
+
+    .eval-page-wrapper .badge {
+        display: none;
+    }
+
+    .eval-page-wrapper .actions {
+        margin: 0 !important;
+    }
+
+    .eval-page-wrapper .btn-primary {
+        display: none;
+    }
+
+    .eval-page-wrapper .input {
+        background: #fff !important;
+    }
+
+    .eval-page-wrapper label {
+        font-weight: 600 !important;
+    }
+
+    .eval-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 24px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .eval-main {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-width: 0;
+    }
+
+    .eval-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        position: sticky;
+        top: 24px;
+    }
+
+    .eval-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(15,45,145,.08);
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .eval-card-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .eval-card-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0;
+        }
+
+        .eval-card-header p {
+            font-size: 14px;
+            color: #6b7280;
+            margin: 4px 0 0;
+        }
+
+    .eval-step-badge {
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background-color: #eef2ff;
+        color: #4338ca;
+        flex-shrink: 0;
+    }
+
+    #select-store-card {
+        border-color: #4f7cff;
+        animation: pulse-blue 2s infinite;
+    }
+
+        #select-store-card .eval-step-badge {
+            background-color: #4f7cff;
+            color: #ffffff;
+        }
+
+    @@keyframes pulse-blue {
+        0% {
+            box-shadow: 0 0 0 0 rgba(79, 124, 255, 0.4), 0 8px 24px rgba(15,45,145,.08);
+        }
+
+        70% {
+            box-shadow: 0 0 0 6px rgba(79, 124, 255, 0), 0 8px 24px rgba(15,45,145,.08);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(79, 124, 255, 0), 0 8px 24px rgba(15,45,145,.08);
+        }
+    }
+
+
+    .eval-card-body {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .eval-form-group label {
+        display: block;
+        font-weight: 600;
+        color: #111827;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .eval-success-alert {
+        background: #ecfdf5;
+        color: #065f46;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        border: 1px solid #a7f3d0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .eval-success-alert svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+    .eval-legend {
+        font-size: 13px;
+        color: #475569;
+        text-align: center;
+    }
+
+    .eval-legend-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+        .eval-legend-grid div {
+            background: #f8fafc;
+            border-radius: 6px;
+            padding: 8px 4px;
+        }
+
+        .eval-legend-grid strong {
+            display: block;
+            font-size: 16px;
+            color: #1e3a8a;
+        }
+
+    .eval-criteria-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .eval-criteria-row {
+        display: grid;
+        grid-template-columns: 40px 1fr auto;
+        align-items: center;
+        gap: 16px;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 16px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+        .eval-criteria-row:hover {
+            border-color: #4f7cff;
+            box-shadow: 0 0 0 3px #e0e7ff;
+            background: #ffffff;
+        }
+
+    .eval-criteria-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #eef2ff;
+        color: #4338ca;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .eval-criteria-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+    .eval-criteria-info h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #111827;
+        margin: 0 0 2px;
+    }
+
+    .eval-criteria-info p {
+        font-size: 13px;
+        color: #6b7280;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    .eval-criteria-badge {
+        font-size: 13px;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 999px;
+        white-space: nowrap;
+    }
+
+        .eval-criteria-badge.not-set {
+            background: #eef2ff;
+            color: #4338ca;
+        }
+
+        .eval-criteria-badge.is-set {
+            background: #10B981;
+            color: #ffffff;
+        }
+
+    .eval-progress-bar {
+        width: 100%;
+        background: #e5e7eb;
+        border-radius: 999px;
+        height: 12px;
+        overflow: hidden;
+    }
+
+    .eval-progress-bar-inner {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg,#4f7cff,#0f2b8f);
+        transition: width .4s ease;
+    }
+
+    .eval-progress-text {
+        text-align: center;
+        font-weight: 600;
+        color: #374151;
+        font-size: 13px;
+        margin-top: 8px;
+    }
+
+    .eval-btn-submit {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-family: 'Segoe UI', Roboto, sans-serif;
+        text-decoration: none;
+        width: 100%;
+        background: linear-gradient(90deg, #4f7cff, #0f2b8f);
+        color: #fff;
+        font-weight: 700;
+        font-size: 16px;
+        padding: 14px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.15);
+        transition: all 0.3s ease;
+    }
+
+        .eval-btn-submit:hover {
+            background: linear-gradient(90deg, #0f2b8f, #4f7cff);
+            transform: translateY(-1px);
+        }
+
+    .eval-input {
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 10px 12px;
+        background: #f8fafc;
+        font-size: 14px;
+        font-family: 'Segoe UI', Roboto, sans-serif;
+        transition: all 0.2s ease;
+    }
+
+        .eval-input:focus {
+            border-color: #4f7cff;
+            background: #fff;
+            box-shadow: 0 0 0 2px rgba(79, 124, 255, 0.2);
+            outline: none;
+        }
+
+    .eval-text-danger {
+        color: #dc2626;
+        font-size: 12px;
+        margin-top: 4px;
+        display: block;
+    }
+
+    .eval-dialog {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        padding: 28px;
+        max-width: 400px;
+        width: 90%;
+    }
+
+        .eval-dialog::backdrop {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+    .eval-dialog-title {
+        padding: 0;
+        margin-bottom: 8px;
+        text-align: left;
+        font-size: 20px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .eval-dialog-text {
+        font-size: 14px;
+        color: #475569;
+        margin: 0 0 16px;
+        line-height: 1.6;
+    }
+
+    .eval-dialog .eval-input {
+        background: #f8fafc;
+    }
+
+    .eval-dialog-actions {
+        margin-top: 16px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    @@media (max-width: 1024px) {
+        .eval-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .eval-sidebar {
+            position: static;
+            top: auto;
+        }
+    }
+
+    @@media (max-width: 960px) {
+        .eval-card-header, .eval-card-body, .eval-card-footer {
+            padding: 16px;
+        }
+
+        .eval-criteria-row {
+            padding: 12px;
+            gap: 12px;
+        }
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const dialog = document.getElementById('critDialog');
+        const storeDialog = document.getElementById('storeDialog');
+        const storeSelect = document.getElementById('storeSelect');
+        const title = document.getElementById('critTitle');
+        const question = document.getElementById('critQuestion');
+        const select = document.getElementById('critSelect');
+        const progress = document.getElementById('progressTracker');
+        const progressBar = document.getElementById('progressBar');
+
+        const hidden = {
+            Cleanliness: document.getElementById('Cleanliness'),
+            Condition: document.getElementById('Condition'),
+            CustomerEngagement: document.getElementById('CustomerEngagement'),
+            PersonalGrooming: document.getElementById('PersonalGrooming'),
+            Accuracy: document.getElementById('Accuracy'),
+            SpeedOfService: document.getElementById('SpeedOfService'),
+            ProductQuality: document.getElementById('ProductQuality')
+        };
+
+        function updateProgress() {
+            const total = 7;
+            const rated = Object.values(hidden).filter(sel => sel.value && sel.value !== "0").length;
+            progress.textContent = `${rated} of ${total} criteria rated`;
+            const percent = Math.round((rated / total) * 100);
+            progressBar.style.width = `${percent}%`;
+
+            Object.keys(hidden).forEach(key => {
+                const badge = document.querySelector(`.eval-criteria-badge[data-for="${key}"]`);
+                const value = hidden[key].value;
+                if (value && value !== "0") {
+                    badge.textContent = `Rating: ${value}`;
+                    badge.classList.add('is-set');
+                    badge.classList.remove('not-set');
+                } else {
+                    badge.textContent = "Rate Now";
+                    badge.classList.add('not-set');
+                    badge.classList.remove('is-set');
+                }
+            });
+        }
+
+        document.querySelectorAll('.eval-criteria-row').forEach(row => {
+            row.addEventListener('click', () => {
+                if (!storeSelect.value) {
+                    storeDialog.showModal();
+                    return;
+                }
+
+                const key = row.dataset.key;
+                title.textContent = row.querySelector('.eval-criteria-info h3').textContent;
+                question.textContent = row.dataset.question;
+                select.value = hidden[key].value !== "0" ? hidden[key].value : "";
+                dialog.returnValue = '';
+                dialog.showModal();
+
+                dialog.onclose = () => {
+                    if (dialog.returnValue === 'ok' && select.value) {
+                        hidden[key].value = select.value;
+                        updateProgress();
+                    }
+                };
+            });
+        });
+
+        updateProgress();
+    </script>
+}

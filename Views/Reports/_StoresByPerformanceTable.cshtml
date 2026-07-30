@@ -1,0 +1,32 @@
+﻿@model List<StoreMetrics.ViewModels.EvaluationSummaryVm>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="no-results-box">
+        No stores found for this category.
+    </div>
+}
+else
+{
+    <table class="perf-table">
+        <thead>
+            <tr>
+                <th>Store Name</th>
+                <th>Average Rating</th>
+                <th>Performance %</th>
+                <th>Last Evaluation</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in Model)
+            {
+                <tr>
+                    <td>@s.StoreName</td>
+                    <td>@s.AverageRating</td>
+                    <td>@s.PerformancePercent %</td>
+                    <td>@s.EvaluationDate.ToShortDateString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

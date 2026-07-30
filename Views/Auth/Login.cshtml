@@ -1,0 +1,331 @@
+﻿@model StoreMetrics.ViewModels.LoginVm
+@{
+    ViewData["Title"] = "Sign In";
+    Layout = "_LayoutAuth";
+}
+
+<div class="login-page-bg"></div>
+
+<div class="login-modal fade-in">
+    <!-- LEFT COOL DESIGN PANEL -->
+    <div class="login-left-panel">
+
+        <!-- Decorative bubbles -->
+        <div class="bubble bubble-lg"></div>
+        <div class="bubble bubble-md"></div>
+        <div class="bubble bubble-sm"></div>
+
+        <div class="left-content">
+            <div class="brand-title">
+                Store<span>Metrics</span>
+            </div>
+
+            <img src="~/img/logo-login.png" class="left-logo" alt="Logo" />
+
+            <p class="left-text">Sign in to continue.</p>
+        </div>
+    </div>
+
+    <!-- RIGHT LOGIN PANEL -->
+    <div class="login-right-panel">
+        <form asp-action="Login" method="post" class="login-form" novalidate>
+            <h2 class="login-title">SIGN IN</h2>
+
+            <!-- Invalid Credentials -->
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState[""] != null)
+            {
+                <div class="login-error">
+                    ⚠ Invalid username or password.
+                </div>
+            }
+
+            <!-- Username -->
+            <div class="input-group">
+                <input asp-for="Username" class="input" placeholder="Username" autocomplete="username" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+
+            <!-- Password -->
+            <div class="input-group password-wrapper">
+                <input asp-for="Password" id="PasswordInput" class="input" placeholder="Password" type="password" autocomplete="current-password" />
+
+                <svg id="togglePassword" xmlns="http://www.w3.org/2000/svg" class="eye-icon" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <!-- Forgot password (NEW) -->
+            <div class="forgot-wrap">
+                <a asp-action="ForgotPassword" class="forgot-link">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="login-btn">Login</button>
+
+            <p class="login-subtle">
+                Don’t have an account?
+                <a asp-action="Register">Sign up</a>
+            </p>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const pwd = document.getElementById("PasswordInput");
+            const toggle = document.getElementById("togglePassword");
+
+            toggle.addEventListener("click", () => {
+                pwd.type = pwd.type === "password" ? "text" : "password";
+                toggle.classList.toggle("active");
+            });
+        });
+    </script>
+}
+
+<style>
+    /* PAGE BACKGROUND */
+    .login-page-bg {
+        position: fixed;
+        inset: 0;
+        background: #eef2ff;
+        z-index: -1;
+    }
+
+    /* MODAL CONTAINER */
+    .login-modal {
+        width: 900px;
+        max-width: 92%;
+        height: 520px;
+        background: white;
+        border-radius: 18px;
+        border: 1.8px solid rgba(200, 210, 255, 0.55);
+        box-shadow: 0 25px 55px rgba(0,0,0,0.18), 0 8px 20px rgba(0,0,0,0.08), inset 0 0 16px rgba(255,255,255,0.35);
+        margin: 50px auto;
+        display: flex;
+        overflow: hidden;
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    .fade-in {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    @@keyframes fadeIn {
+        to
+
+    {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* LEFT PANEL DESIGN */
+    .login-left-panel {
+        width: 42%;
+        background: linear-gradient(180deg, #4f7cff 0%, #0f2b8f 100%);
+        padding: 35px 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* BUBBLES */
+    .bubble {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.45), rgba(255,255,255,0.05));
+        backdrop-filter: blur(2px);
+        filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12));
+        opacity: 0.85;
+    }
+
+    .bubble-lg {
+        width: 260px;
+        height: 260px;
+        top: -140px;
+        left: -100px;
+    }
+
+    .bubble-md {
+        width: 200px;
+        height: 180px;
+        bottom: -50px;
+        left: -20px;
+    }
+
+    .bubble-sm {
+        width: 130px;
+        height: 130px;
+        bottom: 40px;
+        right: -40px;
+    }
+
+    .left-content {
+        text-align: center;
+        color: white;
+        position: relative;
+        z-index: 10;
+    }
+
+    .brand-title {
+        font-size: 32px;
+        font-weight: 800;
+        margin-bottom: 20px;
+    }
+
+        .brand-title span {
+            color: #d2ddff;
+        }
+
+    .left-logo {
+        width: 160px;
+        margin: 20px 0;
+        filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25));
+    }
+
+    .left-text {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+
+    /* RIGHT PANEL */
+    .login-right-panel {
+        width: 58%;
+        background: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 30px;
+    }
+
+    .login-form {
+        width: 85%;
+        max-width: 330px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .login-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #0f2b8f;
+        text-align: center;
+        margin-bottom: 16px;
+    }
+
+    /* ERROR */
+    .login-error {
+        background: #fee2e2;
+        color: #b91c1c;
+        padding: 10px 14px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+
+    /* INPUT */
+    .input-group {
+        margin-bottom: 14px;
+        position: relative;
+    }
+
+    .input {
+        width: 100%;
+        height: 46px;
+        border-radius: 10px;
+        border: none;
+        background: #f3f4f6;
+        padding: 0 16px;
+        font-size: 15px;
+    }
+
+    .eye-icon {
+        position: absolute;
+        right: 12px;
+        top: 12px;
+        width: 22px;
+        color: #6b7280;
+        cursor: pointer;
+    }
+
+        .eye-icon.active {
+            color: #2563eb;
+        }
+
+    /* FORGOT PASSWORD LINK */
+    .forgot-wrap {
+        text-align: right;
+        margin-top: -6px;
+        margin-bottom: 10px;
+    }
+
+    .forgot-link {
+        font-size: 13px;
+        color: #1d4ed8;
+        cursor: pointer;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+        .forgot-link:hover {
+            color: #0a2a8a;
+        }
+
+    /* LOGIN BUTTON */
+    .login-btn {
+        height: 48px;
+        border-radius: 10px;
+        background: linear-gradient(90deg, #4f7cff 0%, #0f2b8f 100%);
+        color: #fff;
+        font-weight: 700;
+        font-size: 17px;
+        cursor: pointer;
+        border: none;
+    }
+
+    .login-subtle {
+        text-align: center;
+        margin-top: 14px;
+        font-size: 14px;
+    }
+
+        .login-subtle a {
+            color: #2d47ff;
+            font-weight: 600;
+        }
+
+    /* MOBILE */
+    @@media(max - width: 850px)
+
+    {
+        .login-modal
+
+    {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .login-left-panel,
+    .login-right-panel {
+        width: 100%;
+    }
+
+    .left-logo {
+        width: 140px;
+    }
+
+    }
+</style>

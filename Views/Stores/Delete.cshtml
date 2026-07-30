@@ -1,0 +1,15 @@
+﻿@model StoreMetrics.ViewModels.StoreVm
+@{
+    ViewData["Title"] = "Delete Store";
+}
+<div class="card" style="max-width:520px;margin:auto;text-align:center">
+    <h2 class="title">Confirm Deletion</h2>
+    <p>Are you sure you want to delete <strong>@Model.StoreName</strong>?<br />This will also delete all related evaluations.</p>
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div class="actions">
+            <button class="btn btn-primary" type="submit">Yes, Delete</button>
+            <a class="btn btn-outline" asp-action="Index">Cancel</a>
+        </div>
+    </form>
+</div>
