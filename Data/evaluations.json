@@ -270,5 +270,22 @@
     "averageRating": 3.4285714285714284,
     "performancePercent": 68.57,
     "performanceDescription": "Average"
+  },
+  {
+    "id": "649623b0-bc27-4123-8d77-d6ad6e613418",
+    "storeId": "6a6ecfcb7a209736bd039301",
+    "storeName": "sda",
+    "cleanliness": 5,
+    "condition": 5,
+    "customerEngagement": 4,
+    "personalGrooming": 3,
+    "accuracy": 4,
+    "speedOfService": 3,
+    "productQuality": 5,
+    "remarks": null,
+    "evaluationDate": "2026-08-02T00:00:00+08:00",
+    "averageRating": 4.142857142857143,
+    "performancePercent": 82.86,
+    "performanceDescription": "Good"
   }
 ]
